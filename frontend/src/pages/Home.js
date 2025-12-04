@@ -4,13 +4,13 @@ import StudentModal from '../components/StudentModal';
 import AlertModal from '../components/AlertModal';
 
 function Home() {
-  // --- STATE BÀI 1: DANH SÁCH --- [cite: 12]
+  // --- STATE BÀI 1: DANH SÁCH ---
   const [students, setStudents] = useState([]);
   
-  // --- STATE BÀI 5: TÌM KIẾM --- [cite: 281]
+  // --- STATE BÀI 5: TÌM KIẾM ---
   const [searchTerm, setSearchTerm] = useState("");
   
-  // --- STATE BÀI 6: SẮP XẾP --- [cite: 314]
+  // --- STATE BÀI 6: SẮP XẾP ---
   const [sortConfig, setSortConfig] = useState({ key: 'name', direction: 'asc' });
 
   // State hỗ trợ Modal (Bài 2 & 3)
@@ -19,10 +19,13 @@ function Home() {
 
   // State hỗ trợ Alert (Bài 4)
   const [alertState, setAlertState] = useState({
-    isOpen: false, type: 'success', message: '', onConfirm: null
+    isOpen: false,
+    type: 'success',
+    message: '',
+    onConfirm: null
   });
 
-  // --- BÀI 1: GỌI API LẤY DANH SÁCH KHI LOAD TRANG --- [cite: 73]
+  // --- BÀI 1: GỌI API LẤY DANH SÁCH KHI LOAD TRANG (GET) ---
   useEffect(() => {
     fetchStudents();
   }, []);
@@ -35,17 +38,40 @@ function Home() {
 
   // --- CÁC HÀM HỖ TRỢ ALERT & MODAL ---
   const showAlert = (message, type = 'success') => {
-    setAlertState({ isOpen: true, type, message, onConfirm: null });
+    setAlertState({
+        isOpen: true,
+        type: type,
+        message: message,
+        onConfirm: null
+    });
   };
+
   const showConfirm = (message, onConfirmAction) => {
-    setAlertState({ isOpen: true, type: 'confirm', message, onConfirm: onConfirmAction });
+    setAlertState({
+        isOpen: true,
+        type: 'confirm',
+        message: message,
+        onConfirm: onConfirmAction
+    });
   };
-  const closeAlert = () => setAlertState(prev => ({ ...prev, isOpen: false }));
 
-  const openAddModal = () => { setEditingStudent(null); setIsModalOpen(true); };
-  const openEditModal = (student) => { setEditingStudent(student); setIsModalOpen(true); };
+  const closeAlert = () => {
+    setAlertState(prev => ({ ...prev, isOpen: false }));
+  };
 
-  // --- XỬ LÝ LƯU (BÀI 2: THÊM & BÀI 3: SỬA) --- [cite: 90, 151]
+  // --- BÀI 2: MỞ MODAL THÊM ---
+  const openAddModal = () => {
+    setEditingStudent(null);
+    setIsModalOpen(true);
+  };
+
+  // --- BÀI 3: MỞ MODAL SỬA ---
+  const openEditModal = (student) => {
+    setEditingStudent(student);
+    setIsModalOpen(true);
+  };
+
+  // --- XỬ LÝ LƯU (BÀI 2: THÊM & BÀI 3: SỬA) ---
   const handleSaveStudent = (studentData) => {
     if (studentData._id) {
         // --- BÀI 3: LOGIC GỌI API SỬA (PUT) ---
@@ -68,7 +94,7 @@ function Home() {
     }
   };
 
-  // --- BÀI 4: LOGIC GỌI API XÓA (DELETE) --- [cite: 231]
+  // --- BÀI 4: LOGIC GỌI API XÓA (DELETE) ---
   const requestDelete = (id) => {
     showConfirm(
         "Bạn có chắc chắn muốn xóa học sinh này không?", 
@@ -83,26 +109,30 @@ function Home() {
             setTimeout(() => showAlert("Đã xóa học sinh thành công!"), 300);
             setStudents(prev => prev.filter(s => s._id !== id));
         })
-        .catch(err => { closeAlert(); showAlert("Lỗi khi xóa", "error"); });
+        .catch(err => {
+            closeAlert();
+            showAlert("Lỗi khi xóa học sinh", "error");
+        });
   };
 
-  // --- BÀI 6: LOGIC XỬ LÝ SẮP XẾP --- [cite: 326]
+  // --- BÀI 6: LOGIC XỬ LÝ SẮP XẾP ---
   const requestSort = (key) => {
     let direction = 'asc';
     if (sortConfig.key === key && sortConfig.direction === 'asc') direction = 'desc';
     setSortConfig({ key, direction });
   };
+
   const getSortIcon = (name) => {
     if (sortConfig.key !== name) return " ↕️";
     return sortConfig.direction === 'asc' ? " ⬆️" : " ⬇️";
   };
 
-  // --- BÀI 5: LOGIC LỌC TÌM KIẾM --- [cite: 296]
+  // --- BÀI 5: LOGIC LỌC TÌM KIẾM ---
   const filteredStudents = students.filter(student => 
     student.name.toLowerCase().includes(searchTerm.toLowerCase())
   );
 
-  // --- BÀI 6: ÁP DỤNG SẮP XẾP VÀO DANH SÁCH ĐÃ LỌC --- [cite: 328]
+  // --- BÀI 6: ÁP DỤNG SẮP XẾP VÀO DANH SÁCH ĐÃ LỌC ---
   const sortedStudents = [...filteredStudents].sort((a, b) => {
     let valA = a[sortConfig.key];
     let valB = b[sortConfig.key];
@@ -113,87 +143,99 @@ function Home() {
   });
 
   return (
-    <div style={{ padding: "20px" }}>
-      {/* BÀI 1: TIÊU ĐỀ */}
-      <h1>Quản Lý Học Sinh</h1>
-      
-      {/* BÀI 2: NÚT THÊM HỌC SINH */}
-      <button 
-        onClick={openAddModal}
-        className="btn-primary"
-        style={{ fontSize: "16px" }}
-      >
-        + Thêm Học Sinh Mới
-      </button>
+    <div className="main-container">
+      <div className="container-content">
+        {/* BÀI 1: TIÊU ĐỀ */}
+        <h1>📚 Quản Lý Học Sinh</h1>
+        
+        <div className="action-bar">
+          {/* BÀI 5: GIAO DIỆN TÌM KIẾM */}
+          <div className="search-container">
+            <input 
+                type="text" 
+                placeholder="🔍 Tìm kiếm theo tên..." 
+                value={searchTerm} 
+                onChange={(e) => setSearchTerm(e.target.value)}
+            />
+          </div>
+          
+          {/* BÀI 2: NÚT THÊM HỌC SINH */}
+          <button 
+            onClick={openAddModal}
+            className="btn-primary"
+          >
+            Thêm Học Sinh Mới
+          </button>
+        </div>
 
-      {/* BÀI 5: GIAO DIỆN TÌM KIẾM */}
-      <div style={{ margin: "20px 0" }}>
-        <input 
-            type="text" placeholder="🔍 Tìm kiếm theo tên..." 
-            value={searchTerm} onChange={(e) => setSearchTerm(e.target.value)}
-            style={{ padding: "8px", width: "300px" }}
-        />
-        <span style={{ marginLeft: "10px", color: "#666", fontSize: "14px" }}>
-            *Nhấn tiêu đề (Bài 6) để sắp xếp
-        </span>
-      </div>
-
-      {/* BÀI 1: BẢNG HIỂN THỊ DANH SÁCH */}
-      <table border="1" cellPadding="10" style={{ width: "100%", borderCollapse: "collapse" }}>
-        <thead>
-          <tr style={{ background: "#f0f0f0", cursor: "pointer", userSelect: "none" }}>
-            {/* BÀI 6: TIÊU ĐỀ CÓ CHỨC NĂNG SẮP XẾP */}
-            <th onClick={() => requestSort('name')}>Họ Tên {getSortIcon('name')}</th>
-            <th onClick={() => requestSort('age')}>Tuổi {getSortIcon('age')}</th>
-            <th onClick={() => requestSort('class')}>Lớp {getSortIcon('class')}</th>
-            <th style={{ cursor: "default" }}>Hành động</th>
-          </tr>
-        </thead>
-        <tbody>
-          {sortedStudents.length > 0 ? (
-            sortedStudents.map((student) => (
-              <tr key={student._id}>
-                {/* BÀI 1: HIỂN THỊ DỮ LIỆU */}
-                <td>{student.name}</td>
-                <td>{student.age}</td>
-                <td>{student.class}</td>
-                <td>
-                  {/* BÀI 3: NÚT SỬA */}
-                  <button 
-                    onClick={() => openEditModal(student)}
-                    className="btn-secondary"
-                    style={{ marginRight: "10px" }}
-                  >
-                    Sửa
-                  </button>
-                  
-                  {/* BÀI 4: NÚT XÓA */}
-                  <button 
-                      onClick={() => requestDelete(student._id)}
-                      className="btn-danger"
-                  >
-                      Xóa
-                  </button>
+        {/* BÀI 1: BẢNG HIỂN THỊ DANH SÁCH */}
+        <table>
+          <thead>
+            <tr>
+              {/* BÀI 6: TIÊU ĐỀ CÓ CHỨC NĂNG SẮP XẾP */}
+              <th onClick={() => requestSort('name')}>Họ Tên {getSortIcon('name')}</th>
+              <th onClick={() => requestSort('age')}>Tuổi {getSortIcon('age')}</th>
+              <th onClick={() => requestSort('class')}>Lớp {getSortIcon('class')}</th>
+              <th style={{ cursor: "default" }}>Hành Động</th>
+            </tr>
+          </thead>
+          <tbody>
+            {sortedStudents.length > 0 ? (
+              sortedStudents.map((student) => (
+                <tr key={student._id}>
+                  {/* BÀI 1: HIỂN THỊ DỮ LIỆU */}
+                  <td>{student.name}</td>
+                  <td>{student.age}</td>
+                  <td>{student.class}</td>
+                  <td>
+                    {/* BÀI 3: NÚT SỬA */}
+                    <button 
+                      onClick={() => openEditModal(student)}
+                      className="btn-secondary"
+                    >
+                      ✏️ Sửa
+                    </button>
+                    
+                    {/* BÀI 4: NÚT XÓA */}
+                    <button 
+                        onClick={() => requestDelete(student._id)}
+                        className="btn-danger"
+                    >
+                        🗑️ Xóa
+                    </button>
+                  </td>
+                </tr>
+              ))
+            ) : (
+              <tr>
+                <td colSpan="4">
+                  <div className="empty-state">
+                    <div className="empty-state-icon">📭</div>
+                    <div className="empty-state-text">Không tìm thấy dữ liệu học sinh</div>
+                  </div>
                 </td>
               </tr>
-            ))
-          ) : (
-             <tr><td colSpan="4" style={{ textAlign: "center" }}>Không tìm thấy dữ liệu.</td></tr>
-          )}
-        </tbody>
-      </table>
+            )}
+          </tbody>
+        </table>
 
-      {/* COMPONENT HỖ TRỢ BÀI 2, 3 (FORM) */}
-      <StudentModal 
-        isOpen={isModalOpen} onClose={() => setIsModalOpen(false)} 
-        onSave={handleSaveStudent} studentToEdit={editingStudent}
-      />
+        {/* COMPONENT HỖ TRỢ BÀI 2 & 3 (FORM) */}
+        <StudentModal 
+          isOpen={isModalOpen} 
+          onClose={() => setIsModalOpen(false)} 
+          onSave={handleSaveStudent}
+          studentToEdit={editingStudent}
+        />
 
-      {/* COMPONENT HỖ TRỢ BÀI 4 (THÔNG BÁO) */}
-      <AlertModal
-        isOpen={alertState.isOpen} type={alertState.type} 
-        message={alertState.message} onClose={closeAlert} onConfirm={alertState.onConfirm}
-      />
+        {/* COMPONENT HỖ TRỢ BÀI 4 (THÔNG BÁO) */}
+        <AlertModal
+          isOpen={alertState.isOpen}
+          type={alertState.type}
+          message={alertState.message}
+          onClose={closeAlert}
+          onConfirm={alertState.onConfirm}
+        />
+      </div>
     </div>
   );
 }
